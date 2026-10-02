@@ -1,5 +1,5 @@
 # Authors: Cooper Cox & Anuk Centellas
-# Description: Program 1 for DATA 471, creating an arbitarily deep neural network
+# Description: Program 1 for DATA 471, creating an arbitrarily deep neural network
 # Date: 10/28/24
 
 import argparse
@@ -68,7 +68,7 @@ def populate_B(B) :
     B[l] = np.random.uniform(low=-args.INIT_RANGE, high=args.INIT_RANGE, size=(C, 1))
     return B
 
-# functions to initialize the A, Z, and deltas lists with matices of the correct dimensions
+# functions to initialize the A, Z, and deltas lists with matrices of the correct dimensions
 def initialize_A(A_0) :
     A_layers = np.empty((l, L, mb))
     A_final = np.empty((C, mb))
@@ -92,7 +92,7 @@ def initialize_deltas() :
     delta_layers = np.empty((l, L, mb))
     delta_last = np.empty((C, mb))
     for i in range(len(delta_layers)) :
-        deltas.append(delta_layers)
+        deltas.append(delta_layers[i])
     deltas.append(delta_last)
     return deltas
 
@@ -118,13 +118,13 @@ def train() :
         # for loop runs for one epoch
         for batch in range(0, int(N/mb)) :
             # taking a minibatch of the data
-            mb_x = np.transpose(train_feat_shuffled[(batch * mb) % (N + 1):((batch + 1) * mb) % (N + 1)])
+            mb_x = np.transpose(train_feat_shuffled[(batch * mb):((batch + 1) * mb) % (N + 1)])
             mb_y = np.transpose(train_target_shuffled[(batch * mb):((batch + 1) * mb)])
             x_dev = np.transpose(dev_feat_shuffled)
             y_dev = np.transpose(dev_target_shuffled)
             A = initialize_A(mb_x)
 
-            if args.VERBOSE_DIR != None :
+            if args.VERBOSE_DIR is not None :
                 write_params_file(num_updates, W, B)
 
             # printing out info before any updating has happened
@@ -132,7 +132,7 @@ def train() :
                 A_dev = initialize_A(x_dev)
                 Z_dev = initialize_Z(np.transpose(x_dev).shape[0])
                 dev_losses = evaluate(A_dev, W, B, Z_dev, y_dev, True)
-                if args.VERBOSE_DIR != None :
+                if args.VERBOSE_DIR is not None :
                     train_mb_losses = evaluate(A, W, B, Z, mb_y, False)
                     print("Epoch", f"{epoch:04}", "UPDATE", f"{num_updates:06}:", "minibatch=" + str(round(train_mb_losses, 3)), "dev=" + str(round(dev_losses, 3)))
                 else :
@@ -159,13 +159,13 @@ def train() :
                 A_dev = initialize_A(x_dev)
                 Z_dev = initialize_Z(np.transpose(x_dev).shape[0])
                 dev_losses = evaluate(A_dev, W, B, Z_dev, y_dev, True)
-                if args.VERBOSE_DIR != None :
+                if args.VERBOSE_DIR is not None :
                     train_mb_losses = evaluate(A, W, B, Z, mb_y, False)
                     print("Epoch", f"{epoch:04}", "UPDATE", f"{num_updates:06}:", "minibatch=" + str(round(train_mb_losses, 3)), "dev=" + str(round(dev_losses, 3)))
                 else :
                     print("Epoch", f"{epoch:04}", "UPDATE", f"{num_updates:06}:", "dev=" + str(round(dev_losses, 3)))
 
-            if args.VERBOSE_DIR != None :
+            if args.VERBOSE_DIR is not None :
                 write_grad_file(num_updates, W_grads, B_grads)
                 write_mb_file(num_updates, mb_x, mb_y)
             
@@ -176,7 +176,7 @@ def train() :
 
         epoch += 1
 
-    if args.VERBOSE_DIR != None:
+    if args.VERBOSE_DIR is not None:
         write_params_file(num_updates, W, B)
 
 # functions to write parameters, minibatch, and gradients to files for verbose mode
@@ -238,7 +238,7 @@ def partials(a, b) :
     partial = np.divide(np.matmul(a, np.transpose(b)), mb)
     return partial
 
-# helper function to claculate delta based on the Z, W, and previous delta
+# helper function to calculate delta based on the Z, W, and previous delta
 def delta_calc(Z, W, delta) :
     if args.HIDDEN_UNIT_ACTIVATION == 'sig' :
         f_prime = sigmoid_prime(Z)
@@ -312,7 +312,6 @@ def evaluate(A, W, B, Z, Y, dev) :
         # verbose mode
         else :
             predictions = A[l + 1]
-            breakpoint()
         mse_arr = (np.square(predictions - Y)).mean(axis=1)
         # other option for mse_arr, both work
         # mse_arr = (np.square(np.transpose(predictions) - np.transpose(Y))).mean(axis=0)
